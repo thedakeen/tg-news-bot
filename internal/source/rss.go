@@ -3,6 +3,7 @@ package source
 import (
 	"context"
 	"github.com/SlyMarbo/rss"
+	"github.com/samber/lo"
 	"news-bot/internal/models"
 )
 
@@ -20,6 +21,25 @@ func NewRSSSourceFromModel(m models.Source) RSSSource {
 	}
 }
 
+func (s RSSSource) Fetch(ctx context.Context) ([]models.Item, error) {
+	feed, err := s.loadFeed(ctx, s.URL)
+	if err != nil {
+		return nil, err
+	}
+
+	return lo.Map(feed.Items, func(item *rss.Item, _ int) models.Item {
+		return models.Item{
+			Title:      item.Title,
+			Categories: item.Categories,
+			Link:       item.Link,
+			Date:       item.Date,
+			Summary:    item.Summary,
+			SourceName: s.SourceName,
+		}
+	}), nil
+
+}
+
 func (s RSSSource) loadFeed(ctx context.Context, url string) (*rss.Feed, error) {
 	var (
 		feedCh = make(chan *rss.Feed)
@@ -35,4 +55,13 @@ func (s RSSSource) loadFeed(ctx context.Context, url string) (*rss.Feed, error) 
 
 		feedCh <- feed
 	}()
+
+	select {
+	case <-ctx.Done():
+		return nil, ctx.Err()
+	case err := <-errCh:
+		return nil, err
+	case feed := <-feedCh:
+		return feed, nil
+	}
 }
