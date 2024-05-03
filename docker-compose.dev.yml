@@ -1,0 +1,18 @@
+version: '3.1'
+
+services:
+  db:
+    image: postgres:16
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 256782366595d
+      POSTGRES_DB: news_feed_bot
+      PGDATA: /var/lib/postgresql/data/
+    ports:
+      - 5433:5433
+    volumes:
+      - db:/var/lib/postgresql/data
+
+volumes:
+  db:
