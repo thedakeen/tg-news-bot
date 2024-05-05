@@ -118,12 +118,12 @@ func (s *ArticlePostgresStorage) MarkPosted(ctx context.Context, article models.
 }
 
 type dbArticle struct {
-	ID          int64          `db:"a_id"`
-	SourceID    int64          `db:"s_id"`
-	Title       string         `db:"a_title"`
-	Link        string         `db:"a_link"`
-	Summary     sql.NullString `db:"a_summary"`
-	PublishedAt time.Time      `db:"a_published_at"`
-	PostedAt    sql.NullTime   `db:"a_posted_at"`
-	CreatedAt   time.Time      `db:"a_created_at"`
+	ID          int64          `db:"id"`
+	SourceID    int64          `db:"source_id"`
+	Title       string         `db:"title"`
+	Link        string         `db:"link"`
+	Summary     sql.NullString `db:"summary"`
+	PublishedAt time.Time      `db:"published_at"`
+	PostedAt    sql.NullTime   `db:"posted_at"`
+	CreatedAt   time.Time      `db:"created_at"`
 }

@@ -3,7 +3,9 @@ package main
 import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/jmoiron/sqlx"
+	_ "github.com/lib/pq"
 	"log"
+
 	"news-bot/internal/config"
 	"news-bot/internal/fetcher"
 	"news-bot/internal/notifier"
