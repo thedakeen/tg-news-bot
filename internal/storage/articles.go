@@ -76,22 +76,41 @@ func (s *ArticlePostgresStorage) AllNotPosted(ctx context.Context, since time.Ti
 	}), nil
 }
 
-func (s *SourcePostgresStorage) MarkPosted(ctx context.Context, id int64) error {
+//func (s *SourcePostgresStorage) MarkPosted(ctx context.Context, article models.Article) error {
+//	conn, err := s.DB.Connx(ctx)
+//	if err != nil {
+//		return err
+//	}
+//
+//	defer conn.Close()
+//
+//	_, err = conn.ExecContext(
+//		ctx,
+//		`UPDATE articles SET posted_at = $1::timestamp WHERE id = $2`,
+//		time.Now().UTC().Format(time.RFC3339),
+//		id,
+//	)
+//
+//	if err != nil {
+//		return err
+//	}
+//
+//	return nil
+//}
+
+func (s *ArticlePostgresStorage) MarkPosted(ctx context.Context, article models.Article) error {
 	conn, err := s.DB.Connx(ctx)
 	if err != nil {
 		return err
 	}
-
 	defer conn.Close()
 
-	_, err = conn.ExecContext(
+	if _, err := conn.ExecContext(
 		ctx,
-		`UPDATE articles SET posted_at = $1::timestamp WHERE id = $2`,
+		`UPDATE articles SET posted_at = $1::timestamp WHERE id = $2;`,
 		time.Now().UTC().Format(time.RFC3339),
-		id,
-	)
-
-	if err != nil {
+		article.ID,
+	); err != nil {
 		return err
 	}
 
