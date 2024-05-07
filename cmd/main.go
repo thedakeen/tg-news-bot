@@ -5,7 +5,7 @@ import (
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
 	"log"
-
+	"news-bot/internal/botkit"
 	"news-bot/internal/config"
 	"news-bot/internal/fetcher"
 	"news-bot/internal/notifier"
@@ -19,6 +19,7 @@ type application struct {
 	sources  *storage.SourcePostgresStorage
 	fetcher  fetcher.Fetcher
 	notifier notifier.Notifier
+	bot      *botkit.Bot
 
 	wg sync.WaitGroup
 }
@@ -40,6 +41,7 @@ func main() {
 	app := &application{
 		articles: storage.NewArticlesStorage(db),
 		sources:  storage.NewSourcesStorage(db),
+		bot:      botkit.New(botAPI),
 	}
 
 	app.fetcher = *fetcher.New(

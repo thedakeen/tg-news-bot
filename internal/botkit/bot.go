@@ -56,6 +56,10 @@ func (b *Bot) handleUpdate(ctx context.Context, update tgbotapi.Update) {
 		return
 	}
 
+	//if update.Message == nil || update.Message.IsCommand() {
+	//	return
+	//}
+
 	var view ViewFunc
 
 	if !update.Message.IsCommand() {

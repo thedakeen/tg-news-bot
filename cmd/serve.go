@@ -3,10 +3,9 @@ package main
 import (
 	"context"
 	"errors"
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"log"
 	"news-bot/internal/bot"
-	"news-bot/internal/botkit"
+	"news-bot/internal/bot/middleware"
 	"news-bot/internal/config"
 	"os"
 	"os/signal"
@@ -17,14 +16,16 @@ func (app *application) serve() error {
 	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer cancel()
 
-	botAPI, err := tgbotapi.NewBotAPI(config.Get().TelegramBotToken)
-	if err != nil {
-		log.Printf("failed to create bot: %v", err)
-		return err
-	}
+	app.bot.RegisterCmdView("start", bot.ViewCmdStart())
+	app.bot.RegisterCmdView("addsource", middleware.AdminOnly(
+		config.Get().TelegramChannelID,
+		bot.ViewCmdAddSource(app.sources),
+	))
 
-	newsBot := botkit.New(botAPI)
-	newsBot.RegisterCmdView("start", bot.ViewCmdStart())
+	app.bot.RegisterCmdView("listsources", middleware.AdminOnly(
+		config.Get().TelegramChannelID,
+		bot.ViewCmdListSources(app.sources),
+	))
 
 	go func(ctx context.Context) {
 		err := app.fetcher.Start(ctx)
@@ -48,7 +49,7 @@ func (app *application) serve() error {
 		}
 	}(ctx)
 
-	err = newsBot.Run(ctx)
+	err := app.bot.Run(ctx)
 	if err != nil {
 		if !errors.Is(err, context.Canceled) {
 			log.Printf("[ERROR] failed to start bot: %v", err)
